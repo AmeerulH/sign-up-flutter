@@ -152,14 +152,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Successfully Signed Up!'),
-                            action: SnackBarAction(
-                              label: 'Action',
-                              onPressed: () {
-                                // Code to execute.
-                              },
-                            ),
+                          const SnackBar(
+                            content: Text('Successfully Signed Up!'),
                           ),
                         );
                       }
