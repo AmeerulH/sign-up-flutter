@@ -18,16 +18,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -44,102 +34,136 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: AppBar(
-          title: const Text('Sign Up!')
+      appBar: AppBar(
+        title: const Text('Sign up page')
         ),
         body: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: <Widget> [
-              const Text('Welcome Message'),
-              TextFormField(
-                decoration: const InputDecoration(
-                hintText: 'Name',
-              ),
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onChanged: (String? value) {
-                  setState(() {
-                    Name = value!;
-                  });
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                hintText: 'Email',
-              ),
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onChanged: (String? value) {
-                  setState(() {
-                    Email = value!;
-                  });
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                hintText: 'Password',
-              ),
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-                onChanged: (String? value) {
-                  setState(() {
-                    Password = value!;
-                  });
-                },
-              ),
-              DropdownButton (
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 16,
-                elevation: 16,
-                style: const TextStyle(color: Colors.deepPurple),
-                underline: Container(
-                  height: 2,
-                  color: Colors.deepPurpleAccent,
+              const Text('Welcome Message', style: TextStyle(
+                  fontSize: 40,
+                  color: Colors.black,
                 ),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: <String>['Male', 'Female', 'Others', 'Free']
-                  .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                textAlign: TextAlign.center,
+                
               ),
-              ElevatedButton(
-                child: const Text('Submit'),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('$Name, $Email, $Password, $dropdownValue'),
-                        action: SnackBarAction(
-                          label: 'Action',
-                          onPressed: () {
-                            // Code to execute.
-                          },
+              const Icon(Icons.bathroom_outlined, size: 100, color: Colors.deepPurpleAccent,),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                  hintText: 'Name',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(
+                    Icons.error,
+                  ),
+                ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                  onChanged: (String? value) {
+                    setState(() {
+                      Name = value!;
+                    });
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                  hintText: 'Email',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(
+                    Icons.error,
+                  ),
+                ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    return null;
+                  },
+                  onChanged: (String? value) {
+                    setState(() {
+                      Email = value!;
+                    });
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                  hintText: 'Password',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(
+                    Icons.error,
+                  ),
+                ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
+                  onChanged: (String? value) {
+                    setState(() {
+                      Password = value!;
+                    });
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: DropdownButton (
+                  value: dropdownValue,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 16,
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValue = newValue!;
+                    });
+                  },
+                  items: <String>['Male', 'Female', 'Others', 'Free']
+                    .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: ElevatedButton(
+                  child: const Text('Submit'),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('$Name, $Email, $Password, $dropdownValue'),
+                          action: SnackBarAction(
+                            label: 'Action',
+                            onPressed: () {
+                              // Code to execute.
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                },
+                      );
+                    }
+                  },
+                ),
               )
             ],
           )
