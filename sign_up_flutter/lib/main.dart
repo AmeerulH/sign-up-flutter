@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     });
     */
+    //connect to the database
     _subscription = _db.collection('users').stream.listen((event) {
       setState(() {
         final item = User.fromMap(event);
@@ -163,6 +164,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     validator: (value) =>
                         value == null ? 'Please Select Your Gender' : null,
                     isExpanded: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
                     value: dropdownValue,
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 16,
@@ -184,39 +188,54 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(20),
-                  child: ElevatedButton(
-                    child: const Text('Submit'),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Successfully Signed Up!'),
-                          ),
-                        );
-                        final id =
-                            Localstore.instance.collection('users').doc().id;
-                        final item = User(
-                          id: id,
-                          name: Name,
-                          email: Email,
-                          password: Password,
-                        );
-                        item.save();
-                        _items.putIfAbsent(item.id, () => item);
-                        // ignore: avoid_print
-                        _items.forEach((key, value) {
-                          print(
-                              'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
-                        });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const NewPage(title: 'hello')),
-                        );
-                      }
-                    },
-                  ),
+                  child: _formKey.currentState!.validate()
+                      ? ElevatedButton(
+                          child: const Text('Submit'),
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.blueAccent),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Successfully Signed Up!'),
+                              ),
+                            );
+                            final id = Localstore.instance
+                                .collection('users')
+                                .doc()
+                                .id;
+                            final item = User(
+                              id: id,
+                              name: Name,
+                              email: Email,
+                              password: Password,
+                            );
+                            item.save();
+                            _items.putIfAbsent(item.id, () => item);
+                            _items.forEach((key, value) {
+                              // ignore: avoid_print
+                              print(
+                                  'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NewPage(title: 'hello')),
+                            );
+                          },
+                        )
+                      : ElevatedButton(
+                          child: const Text('Submit'),
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.blueGrey),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill in your details'),
+                              ),
+                            );
+                          },
+                        ),
                 )
               ],
             )));
