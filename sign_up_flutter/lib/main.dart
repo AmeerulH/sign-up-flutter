@@ -57,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         final item = User.fromMap(event);
         _items.putIfAbsent(item.id, () => item);
+        // final _emails = _items.forEach((key, value) {})
       });
     });
     if (kIsWeb) _db.collection('users').stream.asBroadcastStream();
@@ -124,6 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                               .hasMatch(value)) {
                         return 'Enter a valid email!';
+                      } else if (_items.containsValue(value)) {
+                        return 'Email has already been used';
                       }
                       return null;
                     },
@@ -187,56 +190,48 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(20),
-                  child: _formKey.currentState!.validate()
-                      ? ElevatedButton(
-                          child: const Text('Submit'),
-                          style: ElevatedButton.styleFrom(
-                              primary: Colors.blueAccent),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Successfully Signed Up!'),
-                              ),
-                            );
-                            final id = Localstore.instance
-                                .collection('users')
-                                .doc()
-                                .id;
-                            final item = User(
-                              id: id,
-                              name: Name,
-                              email: Email,
-                              password: Password,
-                            );
-                            item.save();
-                            _items.putIfAbsent(item.id, () => item);
-                            _items.forEach((key, value) {
-                              // ignore: avoid_print
-                              print(
-                                  'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
-                            });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NewPage(title: 'hello')),
-                            );
-                          },
-                        )
-                      : ElevatedButton(
-                          child: const Text('Submit'),
-                          style: ElevatedButton.styleFrom(
-                              primary: Colors.blueGrey),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please fill in your details'),
-                              ),
-                            );
-                          },
-                        ),
-                )
+                    padding: const EdgeInsets.all(20),
+                    child: ElevatedButton(
+                      child: const Text('Submit'),
+                      // style: ElevatedButton.styleFrom(
+                      //     primary: _formKey.currentState?.validate() ?? false
+                      //         ? Colors.blueAccent
+                      //         : Colors.blueGrey),
+                      onPressed: _formKey.currentState?.validate() ?? false
+                          ? () {
+                              if (_formKey.currentState!.validate()) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Successfully Signed Up!'),
+                                  ),
+                                );
+                                final id = Localstore.instance
+                                    .collection('users')
+                                    .doc()
+                                    .id;
+                                final item = User(
+                                  id: id,
+                                  name: Name,
+                                  email: Email,
+                                  password: Password,
+                                );
+                                item.save();
+                                _items.putIfAbsent(item.id, () => item);
+                                _items.forEach((key, value) {
+                                  // ignore: avoid_print
+                                  print(
+                                      'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
+                                });
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NewPage(title: 'hello')),
+                                );
+                              }
+                            }
+                          : null,
+                    ))
               ],
             )));
   }
