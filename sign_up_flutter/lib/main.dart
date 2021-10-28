@@ -67,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // backgroundColor: (Colors.cyanAccent),
         appBar: AppBar(
           title: const Text('Sign up page'),
           flexibleSpace: Container(
@@ -84,173 +83,236 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        body: Form(
-            key: _formKey,
-            child: ListView(
-              children: <Widget>[
-                const Text(
-                  'Sign Up!',
-                  style: TextStyle(
+        body: Container(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.white, Colors.grey])),
+          child: Form(
+              key: _formKey,
+              child: ListView(
+                children: <Widget>[
+                  const Text(
+                    'Sign Up!',
+                    style: TextStyle(
+                      fontSize: 40,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Icon(
+                    Icons.real_estate_agent_outlined,
+                    size: 200,
+                    color: Colors.cyan,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.account_circle),
+                        hintText: 'Name',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(
+                          Icons.error,
+                        ),
+                      ),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                      onChanged: (String? value) {
+                        setState(() {
+                          Name = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.alternate_email),
+                        hintText: 'Email',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(
+                          Icons.error,
+                        ),
+                      ),
+                      validator: (String? email) {
+                        if (email == null || email.isEmpty) {
+                          return 'Please enter your email';
+                        } else if (email.isEmpty ||
+                            !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                .hasMatch(email)) {
+                          return 'Enter a valid email!';
+                        }
+                        // else if (findEmail(_items, email)) {
+                        //   return 'Email has already been used';
+                        // }
+                        return null;
+                      },
+                      onChanged: (String? value) {
+                        setState(() {
+                          Email = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.lock),
+                        hintText: 'Password',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(
+                          Icons.error,
+                        ),
+                      ),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
+                      onChanged: (String? value) {
+                        setState(() {
+                          Password = value!;
+                        });
+                      },
+                      obscureText: true,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    child: DropdownButtonFormField(
+                      validator: (value) =>
+                          value == null ? 'Please Select Your Gender' : null,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      value: dropdownValue,
+                      icon: const Icon(Icons.arrow_downward),
+                      iconEnabledColor: Colors.white,
+                      iconSize: 16,
+                      elevation: 16,
+                      style: const TextStyle(color: Colors.black),
+                      hint: const Text('Select Your Gender'),
+                      items: genderTypes.map((String value) {
+                        return DropdownMenuItem(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          dropdownValue = newValue!;
+                        });
+                      },
+                    ),
+                  ),
+                  Container(
+                      padding: const EdgeInsets.all(20),
+                      child: ElevatedButton(
+                        child: const Text('Submit'),
+                        // style: ElevatedButton.styleFrom(
+                        //     primary: _formKey.currentState?.validate() ?? false
+                        //         ? Colors.blueAccent
+                        //         : Colors.blueGrey),
+                        onPressed: _formKey.currentState?.validate() ?? false
+                            ? () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Successfully Signed Up!'),
+                                  ),
+                                );
+                                final id = Localstore.instance
+                                    .collection('users')
+                                    .doc()
+                                    .id;
+                                final item = User(
+                                  id: id,
+                                  name: Name,
+                                  email: Email,
+                                  password: Password,
+                                );
+                                item.save();
+                                _items.putIfAbsent(item.id, () => item);
+                                _items.forEach((key, value) {
+                                  // ignore: avoid_print
+                                  print(
+                                      'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
+                                });
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          HomePage2(user: item)),
+                                );
+                              }
+                            : null,
+                      ))
+                ],
+              )),
+        ));
+  }
+}
+
+class HomePage2 extends StatelessWidget {
+  final User user;
+
+  const HomePage2({Key? key, required this.user}) : super(key: key);
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(
+              title: const Text('Home Page'),
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF3366FF),
+                        Color(0xFF00CCFF),
+                      ],
+                      begin: FractionalOffset(0.0, 0.0),
+                      end: FractionalOffset(1.0, 0.0),
+                      stops: [0.0, 1.0],
+                      tileMode: TileMode.clamp),
+                ),
+              ),
+            ),
+            body: Center(
+                child: Column(
+              children: [
+                Text(
+                  'Hello ${user.name}!',
+                  style: const TextStyle(
                     fontSize: 40,
                     color: Colors.black,
-                    fontWeight: FontWeight.w700,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const Icon(
-                  Icons.real_estate_agent_outlined,
-                  size: 200,
-                  color: Colors.cyan,
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Name',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(
-                        Icons.error,
-                      ),
-                    ),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      return null;
-                    },
-                    onChanged: (String? value) {
-                      setState(() {
-                        Name = value!;
-                      });
-                    },
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Email',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(
-                        Icons.error,
-                      ),
-                    ),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      } else if (value.isEmpty ||
-                          !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                              .hasMatch(value)) {
-                        return 'Enter a valid email!';
-                      } else if (_items.containsValue(value)) {
-                        return 'Email has already been used';
-                      }
-                      return null;
-                    },
-                    onChanged: (String? value) {
-                      setState(() {
-                        Email = value!;
-                      });
-                    },
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Password',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(
-                        Icons.error,
-                      ),
-                    ),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                    onChanged: (String? value) {
-                      setState(() {
-                        Password = value!;
-                      });
-                    },
-                    obscureText: true,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: DropdownButtonFormField(
-                    validator: (value) =>
-                        value == null ? 'Please Select Your Gender' : null,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                    value: dropdownValue,
-                    icon: const Icon(Icons.arrow_downward),
-                    iconSize: 16,
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.deepPurple),
-                    hint: const Text('Select Your Gender'),
-                    items: genderTypes.map((String value) {
-                      return DropdownMenuItem(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        dropdownValue = newValue!;
-                      });
-                    },
-                  ),
-                ),
-                Container(
-                    padding: const EdgeInsets.all(20),
-                    child: ElevatedButton(
-                      child: const Text('Submit'),
-                      // style: ElevatedButton.styleFrom(
-                      //     primary: _formKey.currentState?.validate() ?? false
-                      //         ? Colors.blueAccent
-                      //         : Colors.blueGrey),
-                      onPressed: _formKey.currentState?.validate() ?? false
-                          ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Successfully Signed Up!'),
-                                ),
-                              );
-                              final id = Localstore.instance
-                                  .collection('users')
-                                  .doc()
-                                  .id;
-                              final item = User(
-                                id: id,
-                                name: Name,
-                                email: Email,
-                                password: Password,
-                              );
-                              item.save();
-                              _items.putIfAbsent(item.id, () => item);
-                              _items.forEach((key, value) {
-                                // ignore: avoid_print
-                                print(
-                                    'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
-                              });
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const NewPage(title: 'hello')),
-                              );
-                            }
-                          : null,
-                    ))
               ],
-            )));
+            ))));
   }
 }
+
+// bool findEmail(arr, email) {
+//   bool b = false;
+//   arr.forEach((value) => {
+//         if (value.email == email) {b = true} else {b = false}
+//       });
+
+//   return b;
+// }
 
 /// Data Users
 class User {
