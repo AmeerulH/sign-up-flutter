@@ -67,7 +67,23 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Sign up page')),
+        // backgroundColor: (Colors.cyanAccent),
+        appBar: AppBar(
+          title: const Text('Sign up page'),
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF3366FF),
+                    Color(0xFF00CCFF),
+                  ],
+                  begin: FractionalOffset(0.0, 0.0),
+                  end: FractionalOffset(1.0, 0.0),
+                  stops: [0.0, 1.0],
+                  tileMode: TileMode.clamp),
+            ),
+          ),
+        ),
         body: Form(
             key: _formKey,
             child: ListView(
@@ -77,13 +93,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(
                     fontSize: 40,
                     color: Colors.black,
+                    fontWeight: FontWeight.w700,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const Icon(
-                  Icons.bathroom_outlined,
-                  size: 100,
-                  color: Colors.deepPurpleAccent,
+                  Icons.real_estate_agent_outlined,
+                  size: 200,
+                  color: Colors.cyan,
                 ),
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -199,36 +216,34 @@ class _MyHomePageState extends State<MyHomePage> {
                       //         : Colors.blueGrey),
                       onPressed: _formKey.currentState?.validate() ?? false
                           ? () {
-                              if (_formKey.currentState!.validate()) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Successfully Signed Up!'),
-                                  ),
-                                );
-                                final id = Localstore.instance
-                                    .collection('users')
-                                    .doc()
-                                    .id;
-                                final item = User(
-                                  id: id,
-                                  name: Name,
-                                  email: Email,
-                                  password: Password,
-                                );
-                                item.save();
-                                _items.putIfAbsent(item.id, () => item);
-                                _items.forEach((key, value) {
-                                  // ignore: avoid_print
-                                  print(
-                                      'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
-                                });
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const NewPage(title: 'hello')),
-                                );
-                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Successfully Signed Up!'),
+                                ),
+                              );
+                              final id = Localstore.instance
+                                  .collection('users')
+                                  .doc()
+                                  .id;
+                              final item = User(
+                                id: id,
+                                name: Name,
+                                email: Email,
+                                password: Password,
+                              );
+                              item.save();
+                              _items.putIfAbsent(item.id, () => item);
+                              _items.forEach((key, value) {
+                                // ignore: avoid_print
+                                print(
+                                    'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
+                              });
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NewPage(title: 'hello')),
+                              );
                             }
                           : null,
                     ))
