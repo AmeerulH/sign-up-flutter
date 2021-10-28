@@ -205,7 +205,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         _items.putIfAbsent(item.id, () => item);
                         // ignore: avoid_print
                         _items.forEach((key, value) {
-                          print(value.name);
+                          print(
+                              'ID: ${value.id}, Name: ${value.name}, Email: ${value.email}, Password: ${value.password}');
                         });
                         Navigator.push(
                           context,
