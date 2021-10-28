@@ -1,6 +1,12 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sign_up_flutter/home.dart';
+import 'package:localstore/localstore.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -24,10 +30,37 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String dropdownValue = 'Male';
+  // ignore: prefer_typing_uninitialized_variables
+  var dropdownValue;
+  final genderTypes = ['Male', 'Female', 'Others'];
   String Name = '';
   String Email = '';
   String Password = '';
+  final _db = Localstore.instance;
+  final _items = <String, User>{};
+  StreamSubscription<Map<String, dynamic>>? _subscription;
+
+  @override
+  void initState() {
+    /*
+    _db.collection('todos').get().then((value) {
+      setState(() {
+        value?.entries.forEach((element) {
+          final item = Todo.fromMap(element.value);
+          _items.putIfAbsent(item.id, () => item);
+        });
+      });
+    });
+    */
+    _subscription = _db.collection('users').stream.listen((event) {
+      setState(() {
+        final item = User.fromMap(event);
+        _items.putIfAbsent(item.id, () => item);
+      });
+    });
+    if (kIsWeb) _db.collection('users').stream.asBroadcastStream();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: ListView(
               children: <Widget>[
                 const Text(
-                  'Welcome Message',
+                  'Sign Up!',
                   style: TextStyle(
                     fontSize: 40,
                     color: Colors.black,
@@ -51,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.deepPurpleAccent,
                 ),
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   child: TextFormField(
                     decoration: const InputDecoration(
                       hintText: 'Name',
@@ -74,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   child: TextFormField(
                     decoration: const InputDecoration(
                       hintText: 'Email',
@@ -86,6 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
+                      } else if (value.isEmpty ||
+                          !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                              .hasMatch(value)) {
+                        return 'Enter a valid email!';
                       }
                       return null;
                     },
@@ -97,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   child: TextFormField(
                     decoration: const InputDecoration(
                       hintText: 'Password',
@@ -117,36 +154,36 @@ class _MyHomePageState extends State<MyHomePage> {
                         Password = value!;
                       });
                     },
+                    obscureText: true,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(8),
-                  child: DropdownButton(
+                  padding: const EdgeInsets.all(10),
+                  child: DropdownButtonFormField(
+                    validator: (value) =>
+                        value == null ? 'Please Select Your Gender' : null,
+                    isExpanded: true,
                     value: dropdownValue,
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 16,
                     elevation: 16,
                     style: const TextStyle(color: Colors.deepPurple),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
-                    ),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        dropdownValue = newValue!;
-                      });
-                    },
-                    items: <String>['Male', 'Female', 'Others', 'Free']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
+                    hint: const Text('Select Your Gender'),
+                    items: genderTypes.map((String value) {
+                      return DropdownMenuItem(
                         value: value,
                         child: Text(value),
                       );
                     }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
                     child: const Text('Submit'),
                     onPressed: () {
@@ -156,11 +193,75 @@ class _MyHomePageState extends State<MyHomePage> {
                             content: Text('Successfully Signed Up!'),
                           ),
                         );
+                        final id =
+                            Localstore.instance.collection('users').doc().id;
+                        final item = User(
+                          id: id,
+                          name: Name,
+                          email: Email,
+                          password: Password,
+                        );
+                        item.save();
+                        _items.putIfAbsent(item.id, () => item);
+                        // ignore: avoid_print
+                        _items.forEach((key, value) {
+                          print(value.name);
+                        });
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const NewPage(title: 'hello')),
+                        );
                       }
                     },
                   ),
                 )
               ],
             )));
+  }
+}
+
+/// Data Users
+class User {
+  final String id;
+  String name;
+  String email;
+  String password;
+
+  User({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.password,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'password': password,
+    };
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+        id: map['id'],
+        name: map['name'],
+        email: map['email'],
+        password: map['password']);
+  }
+}
+
+extension ExtTodo on User {
+  Future save() async {
+    final _db = Localstore.instance;
+    return _db.collection('users').doc(id).set(toMap());
+  }
+
+  Future delete() async {
+    final _db = Localstore.instance;
+    return _db.collection('users').doc(id).delete();
   }
 }
